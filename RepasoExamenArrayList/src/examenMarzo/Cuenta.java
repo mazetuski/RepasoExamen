@@ -38,10 +38,10 @@ public class Cuenta {
 	 * 
 	 * @param saldo
 	 *            La cantidad de saldo que se va a incrementar.
-	 * @throws NumerosRojosException 
+	 * @throws NumerosRojosException
 	 */
 	void incrementarSaldo(double saldo) throws NumerosRojosException {
-		if(!comprobarSaldoValido(saldo))
+		if (!comprobarSaldoPositivo(saldo))
 			throw new NumerosRojosException("El saldo no puede ser negativo");
 		setSaldo(getSaldo() + saldo);
 	}
@@ -53,17 +53,40 @@ public class Cuenta {
 	 *            La cantidad que se decrementa.
 	 * @throws NumerosRojosException
 	 */
-	void decrementarSaldo(double saldo) throws NumerosRojosException {
+	void reintegro(double saldo) throws NumerosRojosException {
 		if (saldo >= getSaldo())
 			throw new NumerosRojosException(
 					"El reintegro es mayor que el saldo de la cuenta.");
-		if(!comprobarSaldoValido(saldo))
+		if (!comprobarSaldoPositivo(saldo))
 			throw new NumerosRojosException("El saldo no puede ser negativo");
 		setSaldo(getSaldo() - saldo);
 	}
-	
-	boolean comprobarSaldoValido(double saldo){
-		if(saldo<0)
+
+	/**
+	 * Metodo que transfiere saldo de una cuenta a otra
+	 * 
+	 * @param saldo
+	 *            Saldo que se transfiere
+	 * @param cuenta
+	 *            Cuenta a la que se le transfiere el saldo.
+	 * @throws NumerosRojosException
+	 *             si el saldo es negativo o es mayor que el saldo de la cuenta.
+	 */
+	void transferencia(double saldo, Cuenta cuenta)
+			throws NumerosRojosException {
+		reintegro(saldo);
+		cuenta.incrementarSaldo(saldo);
+	}
+
+	/**
+	 * Metodo que comprueba que el saldo no sea negativo.
+	 * 
+	 * @param saldo
+	 *            Saldo que se comprueba.
+	 * @return Devuelve true si el saldo es positivo, false en caso contrario.
+	 */
+	boolean comprobarSaldoPositivo(double saldo) {
+		if (saldo < 0)
 			return false;
 		return true;
 	}
@@ -81,7 +104,7 @@ public class Cuenta {
 	}
 
 	private void setSaldo(double saldo) throws NumerosRojosException {
-		if(!comprobarSaldoValido(saldo))
+		if (!comprobarSaldoPositivo(saldo))
 			throw new NumerosRojosException("El saldo no puede ser negativo");
 		this.saldo = saldo;
 	}

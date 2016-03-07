@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class Persona {
 	private String dni;
 	private String nombre;
-	private static final String COMPROBAR_DNI = "^(\\d{8})[- ]?([A-Z&&[^IOU]])$";
+	private static final String COMPROBAR_DNI = "^(?i)(\\d{8})[- ]?([A-Z&&[^IOU]])$";
 	private static Pattern patron = Pattern.compile(COMPROBAR_DNI);
 	private String direccion;
 	private static final String DNI_LETRAS = "TRWAGMYFPDXBNJZSQVHLCKE";
@@ -58,7 +58,7 @@ public class Persona {
 			throw new DniInvalidoException("El DNI es invalido.");
 		if (!comprobarLetraDni(matcher.group(1), matcher.group(2)))
 			throw new DniInvalidoException("La letra del dni no es valida.");
-		this.dni = dni;
+		this.dni = dni.toUpperCase();
 	}
 
 	/**

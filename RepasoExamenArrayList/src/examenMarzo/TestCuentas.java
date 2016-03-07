@@ -5,6 +5,7 @@ package examenMarzo;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ListIterator;
 
 import utiles.Menu;
 import utiles.Teclado;
@@ -104,7 +105,7 @@ public class TestCuentas {
 	 */
 	private static void mostrarCliente() {
 		try {
-			Persona persona = getCliente();
+			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
 			System.out.println(persona);
 		} catch (DniInvalidoException e) {
 			System.err.println(e.getMensaje());
@@ -116,7 +117,7 @@ public class TestCuentas {
 	 */
 	private static void modificarDireccion() {
 		try {
-			Persona persona = getCliente();
+			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
 			persona.modificarDireccion(Teclado
 					.leerCadena("Cual es su nueva direccion?"));
 			System.out.println("La direccion ha sido modificada.");
@@ -130,15 +131,11 @@ public class TestCuentas {
 	 */
 	private static void eliminarCliente() {
 		try {
-			Persona persona = getCliente();
-			Iterator<Cuenta> it = cuentasBancarias.iterator();
-			while (it.hasNext()) {
-				Cuenta cuenta = it.next();
-				if (cuenta.getPersona().equals(persona)) {
-					cuentasBancarias.remove(cuenta);
-					it = cuentasBancarias.iterator();
-				}
-			}
+			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
+			ListIterator<Cuenta> it = cuentasBancarias.listIterator();
+			while (it.hasNext())
+				if (it.next().getPersona().equals(persona))
+					it.remove();
 			clientes.remove(persona);
 			System.out.println("La cuenta ha sido eliminada.");
 		} catch (IndexOutOfBoundsException e) {
@@ -154,10 +151,9 @@ public class TestCuentas {
 	private static void transferirSaldo() {
 		try {
 			Cuenta cuenta = getCuenta();
-			double saldoTransferir = Teclado
-					.leerDecimal("Cuanto desea transferir.");
-			cuenta.decrementarSaldo(saldoTransferir);
-			getCuenta().incrementarSaldo(saldoTransferir);
+			cuenta.transferencia(
+					Teclado.leerDecimal("Cuanto desea transferir?"),
+					getCuenta());
 			System.out.println("La transferencia se ha realizado con exito.");
 		} catch (NumerosRojosException e) {
 			System.err.println(e.getMessage());
@@ -173,7 +169,7 @@ public class TestCuentas {
 	 */
 	private static void reintegro() {
 		try {
-			getCuenta().decrementarSaldo(
+			getCuenta().reintegro(
 					Teclado.leerDecimal("De cuanto es el reintegro?"));
 			System.out.println("Reintegro realizado.");
 		} catch (NumerosRojosException e) {
@@ -233,7 +229,7 @@ public class TestCuentas {
 	 */
 	private static void crearCuentaBancaria() {
 		try {
-			Persona persona = getCliente();
+			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
 			Cuenta cuenta = new Cuenta(persona, 0);
 			cuentasBancarias.add(cuenta);
 			System.out.println("Su codigo de cuenta es: " + cuenta.getId());
@@ -251,9 +247,11 @@ public class TestCuentas {
 	 * @throws DniInvalidoException
 	 *             cuando el dni es invalido.
 	 */
-	private static Persona getCliente() throws DniInvalidoException {
-		return clientes.get(clientes.indexOf(new Persona(Teclado
-				.leerCadena("Cual es su Dni?"))));
+	private static Persona getCliente(String dni) throws DniInvalidoException {
+		Persona persona = new Persona(dni);
+		if (!clientes.contains(persona))
+			throw new DniInvalidoException("No existe una persona con ese DNI.");
+		return clientes.get(clientes.indexOf(persona));
 	}
 
 	/**
