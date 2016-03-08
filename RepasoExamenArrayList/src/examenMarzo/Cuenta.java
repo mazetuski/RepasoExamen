@@ -18,7 +18,7 @@ public class Cuenta {
 	Cuenta(Persona persona, int saldo) throws NumerosRojosException {
 		setPersona(persona);
 		setSaldo(saldo);
-		setId(codigoCuenta++);
+		setId();
 	}
 
 	Cuenta(int id) {
@@ -31,6 +31,10 @@ public class Cuenta {
 
 	private void setId(int id) {
 		this.id = id;
+	}
+
+	private void setId() {
+		this.id = codigoCuenta++;
 	}
 
 	/**
@@ -54,9 +58,6 @@ public class Cuenta {
 	 * @throws NumerosRojosException
 	 */
 	void reintegro(double saldo) throws NumerosRojosException {
-		if (saldo >= getSaldo())
-			throw new NumerosRojosException(
-					"El reintegro es mayor que el saldo de la cuenta.");
 		if (!comprobarSaldoPositivo(saldo))
 			throw new NumerosRojosException("El saldo no puede ser negativo");
 		setSaldo(getSaldo() - saldo);
@@ -105,7 +106,8 @@ public class Cuenta {
 
 	private void setSaldo(double saldo) throws NumerosRojosException {
 		if (!comprobarSaldoPositivo(saldo))
-			throw new NumerosRojosException("El saldo no puede ser negativo");
+			throw new NumerosRojosException(
+					"La cuenta no se puede quedar en numeros rojos.");
 		this.saldo = saldo;
 	}
 

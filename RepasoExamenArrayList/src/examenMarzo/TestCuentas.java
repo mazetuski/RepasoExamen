@@ -12,12 +12,12 @@ import utiles.Teclado;
 
 /**
  * mplementa al menos tres clases: TestCuentas, Persona y Cuenta y añádele los
- * campos y métodos que estimes oportunos según estas instrucciones. Se nos pide
- * implementar el comportamiento de una cuenta corriente. Queremos hacer
- * hincapié en el número de cuenta, que ha de ser único. En este caso el número
- * de cuenta se generará mediante un contador común a todas las cuentas. La
- * primera cuenta deberá tener el código de cuenta con valor 1. La cuenta
- * permitirá al menos las siguientes operaciones:
+ * campos y métodos que estimes oportunos según estas instrucciones. Se nos
+ * pide implementar el comportamiento de una cuenta corriente. Queremos hacer
+ * hincapié en el número de cuenta, que ha de ser único. En este caso el
+ * número de cuenta se generará mediante un contador común a todas las
+ * cuentas. La primera cuenta deberá tener el código de cuenta con valor 1. La
+ * cuenta permitirá al menos las siguientes operaciones:
  * 
  * Ingreso a la cuenta de una cantidad de dinero. Reintegro de la cuenta de una
  * cantidad de dinero. La cuenta no puede llegar a números rojos. En tal caso,
@@ -48,8 +48,8 @@ import utiles.Teclado;
 public class TestCuentas {
 	private static Menu menu = new Menu(new String[] { "Crear Cuenta",
 			"Crear Cliente", "Modificar Direccion", "Mostrar Cliente",
-			"Ingresar Dinero", "Reintegro", "Trasferencia", "Mostrar cuenta",
-			"Eliminar Cuenta", "Mostrar todas las cuentas" }, "Banco de 1ºDAW");
+			"Ingresar Dinero", "Reintegro", "Trasferencia", "Mostrar Cuenta",
+			"Eliminar Cliente", "Mostrar todas las cuentas" }, "Banco de 1DAW");
 
 	private static ArrayList<Cuenta> cuentasBancarias = new ArrayList<Cuenta>();
 	private static ArrayList<Persona> clientes = new ArrayList<Persona>();
@@ -127,21 +127,29 @@ public class TestCuentas {
 	}
 
 	/**
-	 * Metodo que elimina un cliente y todas sus cuentas.
+	 * Metodo que elimina un cliente y todas sus cuentas, pero antes el cliente
+	 * retira su dinero.
 	 */
 	private static void eliminarCliente() {
 		try {
 			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
 			ListIterator<Cuenta> it = cuentasBancarias.listIterator();
-			while (it.hasNext())
-				if (it.next().getPersona().equals(persona))
+			int saldoRetirado = 0;
+			while (it.hasNext()) {
+				Cuenta cuenta = it.next();
+				if (cuenta.getPersona().equals(persona)) {
+					saldoRetirado += cuenta.getSaldo();
 					it.remove();
+				}
+			}
+			System.out.println("El cliente " + persona.getNombre()
+					+ "Ha retirado: " + saldoRetirado);
 			clientes.remove(persona);
-			System.out.println("La cuenta ha sido eliminada.");
+			System.out.println("El cliente ha sido eliminado.");
 		} catch (IndexOutOfBoundsException e) {
-			System.err.println("La cuenta no existe.");
+			System.err.println("El cliente no existe.");
 		} catch (DniInvalidoException e) {
-			System.err.println(e.getMensaje());
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -155,11 +163,9 @@ public class TestCuentas {
 					Teclado.leerDecimal("Cuanto desea transferir?"),
 					getCuenta());
 			System.out.println("La transferencia se ha realizado con exito.");
-		} catch (NumerosRojosException e) {
-			System.err.println(e.getMessage());
 		} catch (IndexOutOfBoundsException e) {
 			System.err.println("La cuenta no existe.");
-		} catch (BancoVacioException e) {
+		} catch (NumerosRojosException | BancoVacioException e) {
 			System.err.println(e.getMessage());
 		}
 	}
@@ -172,11 +178,9 @@ public class TestCuentas {
 			getCuenta().reintegro(
 					Teclado.leerDecimal("De cuanto es el reintegro?"));
 			System.out.println("Reintegro realizado.");
-		} catch (NumerosRojosException e) {
-			System.err.println(e.getMessage());
 		} catch (IndexOutOfBoundsException e) {
 			System.err.println("La cuenta no existe.");
-		} catch (BancoVacioException e) {
+		} catch (NumerosRojosException | BancoVacioException e) {
 			System.err.println(e.getMessage());
 		}
 	}
@@ -186,6 +190,7 @@ public class TestCuentas {
 	 * 
 	 * @return Devuelve una cuenta.
 	 * @throws BancoVacioException
+	 *             si el banco esta vacio.
 	 */
 	private static Cuenta getCuenta() throws BancoVacioException {
 		if (cuentasBancarias.isEmpty())
@@ -217,9 +222,7 @@ public class TestCuentas {
 			System.out.println("Ha sido ingresado con exito");
 		} catch (IndexOutOfBoundsException e) {
 			System.err.println("La cuenta no existe.");
-		} catch (NumerosRojosException e) {
-			System.err.println(e.getMessage());
-		} catch (BancoVacioException e) {
+		}catch (NumerosRojosException | BancoVacioException e) {
 			System.err.println(e.getMessage());
 		}
 	}

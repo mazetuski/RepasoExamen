@@ -53,7 +53,7 @@ public class Persona {
 	 *             si el dni o la letra del dni son invalidos.
 	 */
 	private void setDni(String dni) throws DniInvalidoException {
-		Matcher matcher = patron.matcher(dni);
+		Matcher matcher = patron.matcher(dni.toUpperCase());
 		if (!matcher.matches())
 			throw new DniInvalidoException("El DNI es invalido.");
 		if (!comprobarLetraDni(matcher.group(1), matcher.group(2)))
@@ -86,7 +86,7 @@ public class Persona {
 	 *            Dni que se comprueba.
 	 * @return Devuelve true si la letra coincide, false en caso contrario.
 	 */
-	boolean comprobarLetraDni(String numerosDni, String letra) {
+	private boolean comprobarLetraDni(String numerosDni, String letra) {
 		if (letra.charAt(0) != DNI_LETRAS
 				.charAt(Integer.parseInt(numerosDni) % 23))
 			return false;
