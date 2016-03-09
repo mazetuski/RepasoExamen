@@ -12,12 +12,12 @@ import utiles.Teclado;
 
 /**
  * mplementa al menos tres clases: TestCuentas, Persona y Cuenta y añádele los
- * campos y métodos que estimes oportunos según estas instrucciones. Se nos
- * pide implementar el comportamiento de una cuenta corriente. Queremos hacer
- * hincapié en el número de cuenta, que ha de ser único. En este caso el
- * número de cuenta se generará mediante un contador común a todas las
- * cuentas. La primera cuenta deberá tener el código de cuenta con valor 1. La
- * cuenta permitirá al menos las siguientes operaciones:
+ * campos y métodos que estimes oportunos según estas instrucciones. Se nos pide
+ * implementar el comportamiento de una cuenta corriente. Queremos hacer
+ * hincapié en el número de cuenta, que ha de ser único. En este caso el número
+ * de cuenta se generará mediante un contador común a todas las cuentas. La
+ * primera cuenta deberá tener el código de cuenta con valor 1. La cuenta
+ * permitirá al menos las siguientes operaciones:
  * 
  * Ingreso a la cuenta de una cantidad de dinero. Reintegro de la cuenta de una
  * cantidad de dinero. La cuenta no puede llegar a números rojos. En tal caso,
@@ -51,8 +51,8 @@ public class TestCuentas {
 			"Ingresar Dinero", "Reintegro", "Trasferencia", "Mostrar Cuenta",
 			"Eliminar Cliente", "Mostrar todas las cuentas" }, "Banco de 1DAW");
 
-	private static ArrayList<Cuenta> cuentasBancarias = new ArrayList<Cuenta>();
-	private static ArrayList<Persona> clientes = new ArrayList<Persona>();
+	private static CuentaBancaria cuentasBancarias = new CuentaBancaria();
+	private static Clientes clientes = new Clientes();
 
 	public static void main(String[] args) {
 		while (true) {
@@ -93,7 +93,7 @@ public class TestCuentas {
 			eliminarCliente();
 			break;
 		case 10:
-			System.out.println(mostrarCuentasBancarias());
+			mostrarCuentasBancarias();
 			break;
 		case 11:
 			System.exit(0);
@@ -105,10 +105,11 @@ public class TestCuentas {
 	 */
 	private static void mostrarCliente() {
 		try {
-			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
+			Persona persona = clientes.getCliente(Teclado
+					.leerCadena("Cual es su DNI?"));
 			System.out.println(persona);
 		} catch (DniInvalidoException e) {
-			System.err.println(e.getMensaje());
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -117,12 +118,13 @@ public class TestCuentas {
 	 */
 	private static void modificarDireccion() {
 		try {
-			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
+			Persona persona = clientes.getCliente(Teclado
+					.leerCadena("Cual es su DNI?"));
 			persona.modificarDireccion(Teclado
 					.leerCadena("Cual es su nueva direccion?"));
 			System.out.println("La direccion ha sido modificada.");
 		} catch (DniInvalidoException e) {
-			System.err.println(e.getMensaje());
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -132,19 +134,10 @@ public class TestCuentas {
 	 */
 	private static void eliminarCliente() {
 		try {
-			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
-			ListIterator<Cuenta> it = cuentasBancarias.listIterator();
-			int saldoRetirado = 0;
-			while (it.hasNext()) {
-				Cuenta cuenta = it.next();
-				if (cuenta.getPersona().equals(persona)) {
-					saldoRetirado += cuenta.getSaldo();
-					it.remove();
-				}
-			}
-			System.out.println("El cliente " + persona.getNombre()
-					+ "Ha retirado: " + saldoRetirado);
-			clientes.remove(persona);
+			Persona persona = clientes.getCliente(Teclado
+					.leerCadena("Cual es su DNI?"));
+			cuentasBancarias.eliminarCuentas(persona);
+			clientes.eliminarPersona(persona);
 			System.out.println("El cliente ha sido eliminado.");
 		} catch (IndexOutOfBoundsException e) {
 			System.err.println("El cliente no existe.");
@@ -158,10 +151,10 @@ public class TestCuentas {
 	 */
 	private static void transferirSaldo() {
 		try {
-			Cuenta cuenta = getCuenta();
+			Cuenta cuenta = cuentasBancarias.getCuenta();
 			cuenta.transferencia(
 					Teclado.leerDecimal("Cuanto desea transferir?"),
-					getCuenta());
+					cuentasBancarias.getCuenta());
 			System.out.println("La transferencia se ha realizado con exito.");
 		} catch (IndexOutOfBoundsException e) {
 			System.err.println("La cuenta no existe.");
@@ -175,7 +168,7 @@ public class TestCuentas {
 	 */
 	private static void reintegro() {
 		try {
-			getCuenta().reintegro(
+			cuentasBancarias.getCuenta().reintegro(
 					Teclado.leerDecimal("De cuanto es el reintegro?"));
 			System.out.println("Reintegro realizado.");
 		} catch (IndexOutOfBoundsException e) {
@@ -186,25 +179,11 @@ public class TestCuentas {
 	}
 
 	/**
-	 * Metodo que devuelve una cuenta del arraylist.
-	 * 
-	 * @return Devuelve una cuenta.
-	 * @throws BancoVacioException
-	 *             si el banco esta vacio.
-	 */
-	private static Cuenta getCuenta() throws BancoVacioException {
-		if (cuentasBancarias.isEmpty())
-			throw new BancoVacioException("No hay cuentas en el banco.");
-		return cuentasBancarias.get(cuentasBancarias.indexOf(new Cuenta(Teclado
-				.leerEntero("Cual es el codigo de su cuenta?"))));
-	}
-
-	/**
 	 * Metodo que muestra una cuenta.
 	 */
 	private static void mostrarCuenta() {
 		try {
-			System.out.println(getCuenta());
+			System.out.println(cuentasBancarias.getCuenta());
 		} catch (IndexOutOfBoundsException e) {
 			System.err.println("La cuenta no existe.");
 		} catch (BancoVacioException e) {
@@ -217,12 +196,12 @@ public class TestCuentas {
 	 */
 	private static void ingresarDinero() {
 		try {
-			getCuenta().incrementarSaldo(
+			cuentasBancarias.getCuenta().incrementarSaldo(
 					Teclado.leerDecimal("Cuanto desea ingresar en su cuenta."));
 			System.out.println("Ha sido ingresado con exito");
 		} catch (IndexOutOfBoundsException e) {
 			System.err.println("La cuenta no existe.");
-		}catch (NumerosRojosException | BancoVacioException e) {
+		} catch (NumerosRojosException | BancoVacioException e) {
 			System.err.println(e.getMessage());
 		}
 	}
@@ -232,29 +211,15 @@ public class TestCuentas {
 	 */
 	private static void crearCuentaBancaria() {
 		try {
-			Persona persona = getCliente(Teclado.leerCadena("Cual es su DNI?"));
-			Cuenta cuenta = new Cuenta(persona, 0);
-			cuentasBancarias.add(cuenta);
+			Persona persona = clientes.getCliente(Teclado
+					.leerCadena("Cual es su DNI?"));
+			Cuenta cuenta = new Cuenta(persona, Teclado.leerEntero("Cuanto saldo desea insertar?"));
+			cuentasBancarias.annadirCuenta(cuenta);
 			System.out.println("Su codigo de cuenta es: " + cuenta.getId());
-		} catch (DniInvalidoException e) {
-			System.err.println(e.getMensaje());
-		} catch (NumerosRojosException e) {
+		} catch (DniInvalidoException | NumerosRojosException
+				| CuentaExisteException e) {
 			System.err.println(e.getMessage());
 		}
-	}
-
-	/**
-	 * Metodo que devuelve un cliente.
-	 * 
-	 * @return Devuelve un cliente.
-	 * @throws DniInvalidoException
-	 *             cuando el dni es invalido.
-	 */
-	private static Persona getCliente(String dni) throws DniInvalidoException {
-		Persona persona = new Persona(dni);
-		if (!clientes.contains(persona))
-			throw new DniInvalidoException("No existe una persona con ese DNI.");
-		return clientes.get(clientes.indexOf(persona));
 	}
 
 	/**
@@ -266,27 +231,14 @@ public class TestCuentas {
 					Teclado.leerCadena("Introduce tu nombre:"),
 					Teclado.leerCadena("Introduce tu direccion: "),
 					Teclado.leerCadena("Introduce tu DNI: "));
-			if (clientes.contains(persona))
-				throw new ClienteExisteException("El cliente ya existe.");
-			clientes.add(persona);
+			clientes.annadirPersona(persona);
 			System.out.println("Se ha creado el cliente.");
-		} catch (DniInvalidoException e) {
-			System.err.println(e.getMensaje());
-		} catch (ClienteExisteException e) {
+		} catch (DniInvalidoException | ClienteExisteException e) {
 			System.err.println(e.getMessage());
 		}
 	}
 
-	/**
-	 * Metodo que muestra todas las cuentas bancarias.
-	 * 
-	 * @return Devuelve un mensaje con todas las cuentas.
-	 */
-	static String mostrarCuentasBancarias() {
-		String mensaje = "";
-		Iterator<Cuenta> iterator = cuentasBancarias.iterator();
-		while (iterator.hasNext())
-			mensaje += "\n" + iterator.next();
-		return mensaje;
+	private static void mostrarCuentasBancarias() {
+		System.out.println(cuentasBancarias.mostrarCuentasBancarias());
 	}
 }
