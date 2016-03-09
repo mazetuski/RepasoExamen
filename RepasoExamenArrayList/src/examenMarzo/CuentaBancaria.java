@@ -17,7 +17,7 @@ import utiles.Teclado;
  */
 public class CuentaBancaria {
 
-	private static ArrayList<Cuenta> cuentasBancarias = new ArrayList<Cuenta>();
+	private ArrayList<Cuenta> cuentasBancarias = new ArrayList<Cuenta>();
 
 	/**
 	 * Metodo que devuelve una cuenta del arraylist.

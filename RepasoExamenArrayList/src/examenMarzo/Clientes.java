@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class Clientes {
 
-	private static ArrayList<Persona> clientes = new ArrayList<Persona>();
+	private ArrayList<Persona> clientes = new ArrayList<Persona>();
 
 	/**
 	 * Metodo que devuelve un cliente.
